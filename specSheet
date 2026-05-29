@@ -1,0 +1,65 @@
+# WhatsApp Quoting System Specification Sheet
+
+## Overview
+The WhatsApp quoting system is an automated quoting solution designed to reduce human input without compromising on accuracy. Its primary goal is to minimize administrative tasks for workshop mechanics by automating repetitive work, only nudging the mechanic to approve the final summary.
+
+## Core Requirements
+* **Customer:** Must have an active WhatsApp account.
+* **Mechanic:** Must be available to check for notifications and nudges while on shift.
+* **Day One Automation Cycle:** 
+  1. The customer's WhatsApp message is successfully received by the server.
+  2. AI processes the message and creates a payload.
+  3. The system pushes a confirmation message back to WhatsApp.
+  4. The database is updated with the new information.
+  5. A notification is sent to the mechanic to complete the cycle.
+* **Future Additions:** Third-party services like VicRoads and advanced caching can be queued for later phases, as their primary function is to maintain utmost accuracy rather than core functionality.
+
+---
+
+## Technical Dependencies & Fallbacks
+To keep the automation working in optimal condition, core services (WhatsApp, Server, VicRoads, AI Provider, Database) should ideally operate without outages. However, fallbacks are assigned to ensure resilience.
+
+### System Fallback Mappings
+* **WhatsApp** ➔ Email
+* **AI Provider** ➔ Webhook handler
+* **VicRoads & Database** ➔ Cached data
+
+### Total Outage Scenario Workflow
+In the event of a total service outage, the ultimate fallback operates as follows:
+1. The customer sends an **email**.
+2. A **webhook handler** receives the email.
+3. A **script** extracts the necessary information from the message.
+4. The script structures the payload and assigns pricing using already present **hardcoded information**.
+5. An email containing the payload is sent to the **mechanic**.
+6. After approval, the mechanic sends the final quote to the **customer**.
+
+---
+
+## Pre-Launch Verifications
+Before beginning the project, several variables must be tested and verified:
+* **WhatsApp:** Confirm message volume and rate limits to avoid the business number getting flagged as spam.
+* **Server:** Ensure it can handle expected incoming and outgoing traffic, and verify its scalability for traffic spikes.
+* **AI Provider:** Rigorously test the AI to ensure consistent output accuracy.
+* **VicRoads API:** Verify API availability, response wait times, and pricing structures.
+* **Database:** Conduct thorough verifications for scalability, vulnerability, and strict security to ensure customer information remains secure.
+* **Notifications:** Perform a critical check to ensure mechanics actually receive nudges. This includes verifying that modern Android OS features do not silently flag the notifications as "promotion," "social," or "news," which would defeat the entire system.
+
+---
+
+## Validation Order
+The system adheres to the following strict dependency rules:
+
+| Service Status | System Impact |
+| :--- | :--- |
+| **WhatsApp unavailable** | System **dies** |
+| **VicRoads unavailable** | System **degrades** (Fallback exists) |
+| **AI Provider unavailable** | System **degrades** (Webhook handler fallback exists) |
+| **Database unavailable** | System **degrades** (Cache fallback exists) |
+
+---
+
+## Scope & Limitations
+> **Note:** During the verification process, official documentation for all 3rd-party services must be reviewed to identify any hidden shortcomings or limitations.
+
+* **In Scope:** The automation will explicitly provide indicative quotation pricing according to the customer's requirements.
+* **Out of Scope:** This system will **not** handle making appointments or processing payments.
