@@ -30,3 +30,10 @@
 * customerName
 * Qty
 * customerAddress
+
+## API Logs
+* LogID
+* Time
+* API Key
+* endpoint called
+* IP address
